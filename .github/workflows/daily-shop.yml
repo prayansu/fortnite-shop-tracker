@@ -1,0 +1,34 @@
+name: Daily Shop Update
+
+on:
+  schedule:
+    - cron: '15 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-shop:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch latest shop data
+        run: node scripts/update-shop.mjs
+
+      - name: Commit and push if changed
+        run: |
+          git diff --quiet data/summary.json && exit 0
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/summary.json
+          git commit -m "chore: update shop data for $(date -u +%Y-%m-%d)"
+          git push origin main

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fortnite Shop Value Tracker</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <!-- ───── Navbar ───── -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <div class="nav-left">
+        <span class="logo">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 5-10"/>
+          </svg>
+          Shop Value Tracker
+        </span>
+      </div>
+
+      <div class="nav-right">
+        <div class="select-wrapper">
+          <select id="timeframe" aria-label="Timeframe">
+            <option value="7">Last 7 Days</option>
+            <option value="14">Last 14 Days</option>
+            <option value="30" selected>Last 30 Days</option>
+            <option value="all">All Time</option>
+          </select>
+          <svg class="select-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ───── Dashboard ───── -->
+  <main class="container">
+    <div class="overview-layout">
+      <!-- Left Column — KPIs -->
+      <div class="overview-left">
+        <div class="card kpi-card">
+          <span class="kpi-label">Today's Shop Value</span>
+          <div class="kpi-hero-row">
+            <span class="kpi-value" id="kpi-today-vbucks">&mdash;</span>
+            <span class="kpi-pill" id="kpi-change-pill"></span>
+          </div>
+          <span class="kpi-sub" id="kpi-yesterday-line"></span>
+        </div>
+
+        <div class="card kpi-card">
+          <span class="kpi-label">All-Time Highest Shop</span>
+          <span class="kpi-value" id="kpi-peak-vbucks">&mdash;</span>
+          <span class="kpi-sub" id="kpi-peak-detail"></span>
+        </div>
+
+        <div class="card kpi-card">
+          <span class="kpi-label">Average Daily Value</span>
+          <span class="kpi-value" id="kpi-avg-vbucks">&mdash;</span>
+          <span class="kpi-sub" id="kpi-avg-detail"></span>
+        </div>
+      </div>
+
+      <!-- Right Column — Chart + Leaderboard -->
+      <div class="overview-right">
+        <div class="card chart-card">
+          <h2 class="card-title">V-Bucks Over Time</h2>
+          <div class="chart-wrap">
+            <canvas id="vbucks-chart"></canvas>
+          </div>
+        </div>
+
+        <div class="card leaderboard-card">
+          <h2 class="card-title">Highest-Value Days</h2>
+          <ol class="leaderboard" id="leaderboard"></ol>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
