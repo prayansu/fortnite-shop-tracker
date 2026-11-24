@@ -3,6 +3,30 @@
    Unified Time Range Control & Adaptive Overview Analytics
    ================================================================ */
 
+// ================================================================
+// CONSTANTS & CONFIGURATION
+// ================================================================
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
+const MONTH_SHORT = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+];
+
+const COLLAB_KEYWORDS = [
+  "marvel", "star wars", "disney", "anime", "naruto", "dragon ball", "goku", "vegeta",
+  "one piece", "luffy", "zoro", "cowboy bebop", "overwatch", "halo", "god of war", "kratos",
+  "master chief", "witcher", "geralt", "my hero academia", "jujutsu kaisen", "attack on titan",
+  "batman", "superman", "spider-man", "spiderman", "iron man", "avengers", "deadpool", "wolverine",
+  "nike", "jordan", "lego", "ferrari", "mclaren", "lamborghini", "bmw", "cybertruck", "travis scott",
+  "eminem", "ariana grande", "the weeknd", "lady gaga", "billie eilish", "metallica", "snoop dogg",
+  "madison beer", "lil uzi vert", "regular show", "futurama", "family guy", "rick and morty",
+  "mrbeast", "ninja", "bugha", "icon", "gaming legends", "dc", "collab"
+];
+
 // ── State ──
 let history = [];
 let vbucksChart = null;
@@ -148,14 +172,14 @@ if (typeof Chart !== "undefined") {
 }
 
 // ── Boot ──
-await init();
+// (Boot is triggered at the end of script after all constants, plugins, and helpers are initialized)
 
 async function init() {
   initTheme();
   renderLoadingSkeletons();
 
   try {
-    const res = await fetch("data/summary.json");
+    const res = await fetch("./data/summary.json");
     if (!res.ok) {
       throw new Error(`HTTP ${res.status}: Failed to fetch shop data`);
     }
@@ -266,15 +290,6 @@ function computeBoundaries() {
     activeMonth = maxMonthStr;
   }
 }
-
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
-];
-const MONTH_SHORT = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-];
 
 function formatMonthYear(ym) {
   if (!ym) return "";
@@ -1187,17 +1202,7 @@ function isCollabDay(d) {
   if (d.tags && Array.isArray(d.tags) && d.tags.some((t) => t.toLowerCase() === "collab")) return true;
   if (!d.topItem?.name) return false;
   const name = d.topItem.name.toLowerCase();
-  const collabKeywords = [
-    "marvel", "star wars", "disney", "anime", "naruto", "dragon ball", "goku", "vegeta",
-    "one piece", "luffy", "zoro", "cowboy bebop", "overwatch", "halo", "god of war", "kratos",
-    "master chief", "witcher", "geralt", "my hero academia", "jujutsu kaisen", "attack on titan",
-    "batman", "superman", "spider-man", "spiderman", "iron man", "avengers", "deadpool", "wolverine",
-    "nike", "jordan", "lego", "ferrari", "mclaren", "lamborghini", "bmw", "cybertruck", "travis scott",
-    "eminem", "ariana grande", "the weeknd", "lady gaga", "billie eilish", "metallica", "snoop dogg",
-    "madison beer", "lil uzi vert", "regular show", "futurama", "family guy", "rick and morty",
-    "mrbeast", "ninja", "bugha", "icon", "gaming legends", "dc", "collab"
-  ];
-  return collabKeywords.some((kw) => name.includes(kw));
+  return COLLAB_KEYWORDS.some((kw) => name.includes(kw));
 }
 
 // ── Leaderboard ──
@@ -1312,3 +1317,6 @@ window.addEventListener("resize", () => {
     }
   }
 });
+
+// ── Application Boot ──
+await init();

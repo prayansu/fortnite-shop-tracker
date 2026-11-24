@@ -113,6 +113,10 @@
    ================================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+[hidden] {
+  display: none !important;
+}
+
 html, body {
   overflow-x: hidden;
 }
@@ -594,6 +598,15 @@ body {
 /* ================================================================
    UI STATES: ERROR BANNER, SKELETONS & EMPTY STATE
    ================================================================ */
+
+.error-banner[hidden],
+.empty-state-card[hidden],
+.chart-empty-state[hidden],
+.datepicker-popover[hidden],
+.skeleton-chart[hidden],
+.lb-expand-btn[hidden] {
+  display: none !important;
+}
 
 /* ── Error Banner ── */
 .error-banner {
