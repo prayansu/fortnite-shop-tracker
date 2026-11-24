@@ -4,6 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fortnite Shop Value Tracker</title>
+  <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem("theme");
+        var theme = saved || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      } catch (e) {}
+    })();
+  </script>
   <link rel="stylesheet" href="styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 </head>
@@ -18,19 +27,108 @@
           </svg>
           Shop Value Tracker
         </span>
+        <div class="nav-actions">
+          <button class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" title="Switch theme">
+            <!-- Sun icon (visible in dark mode) -->
+            <svg class="sun-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/>
+              <line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            <!-- Moon icon (visible in light mode) -->
+            <svg class="moon-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </button>
+          <button class="mobile-filter-toggle" id="mobile-filter-toggle" aria-expanded="false" aria-label="Toggle Time Filters">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+            </svg>
+            <span id="mobile-filter-label">30D</span>
+            <svg class="chevron-toggle" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <div class="nav-right">
-        <div class="select-wrapper">
-          <select id="timeframe" aria-label="Timeframe">
-            <option value="7">Last 7 Days</option>
-            <option value="14">Last 14 Days</option>
-            <option value="30" selected>Last 30 Days</option>
-            <option value="all">All Time</option>
-          </select>
-          <svg class="select-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
+      <div class="nav-right" id="nav-filter-bar">
+        <div class="time-range-bar" role="toolbar" aria-label="Time Range Controls">
+          <!-- 1. Presets -->
+          <div class="range-presets" role="radiogroup" aria-label="Quick Presets">
+            <button class="preset-btn" data-preset="7d" role="radio" aria-checked="false">7D</button>
+            <button class="preset-btn active" data-preset="30d" role="radio" aria-checked="true">30D</button>
+            <button class="preset-btn" data-preset="90d" role="radio" aria-checked="false">90D</button>
+            <button class="preset-btn" data-preset="all" role="radio" aria-checked="false">All</button>
+          </div>
+
+          <!-- 2. Month Stepper -->
+          <div class="month-stepper" aria-label="Month Stepper">
+            <button class="stepper-btn" id="stepper-prev" aria-label="Previous month" title="Previous month">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </button>
+            <button class="stepper-label-btn" id="stepper-label-btn" title="Filter to this month">
+              <span id="stepper-label">Nov 2026</span>
+            </button>
+            <button class="stepper-btn" id="stepper-next" aria-label="Next month" title="Next month">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- 3. Custom Date Range Trigger & Popover -->
+          <div class="custom-range-wrap">
+            <button class="custom-range-btn" id="custom-range-btn" aria-haspopup="dialog" aria-expanded="false">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              <span id="custom-btn-label">Custom</span>
+              <svg class="chevron-down" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+
+            <!-- Lightweight Popover Calendar -->
+            <div class="datepicker-popover" id="datepicker-popover" role="dialog" aria-modal="true" hidden>
+              <div class="popover-header">
+                <button class="pop-nav" id="pop-prev" aria-label="Previous month">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"/>
+                  </svg>
+                </button>
+                <span class="pop-title" id="pop-title">November 2026</span>
+                <button class="pop-nav" id="pop-next" aria-label="Next month">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"/>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="pop-hint" id="pop-hint">Select start date</div>
+
+              <div class="pop-weekdays">
+                <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+              </div>
+              <div class="pop-grid" id="pop-grid"></div>
+
+              <div class="popover-footer">
+                <button class="pop-cancel-btn" id="pop-cancel">Cancel</button>
+                <button class="pop-apply-btn" id="pop-apply" disabled>Apply Range</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -38,9 +136,28 @@
 
   <!-- ───── Dashboard ───── -->
   <main class="container">
-    <div class="overview-layout">
-      <!-- Left Column — KPIs -->
-      <div class="overview-left">
+    <!-- Error Banner (shown if data fetch/parse fails) -->
+    <div class="card error-banner" id="error-banner" hidden>
+      <div class="error-content">
+        <svg class="error-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <div class="error-text">
+          <span class="error-title">Failed to load shop data</span>
+          <span class="error-desc" id="error-desc">Could not fetch or parse data/summary.json.</span>
+        </div>
+      </div>
+      <button class="error-retry-btn" id="error-retry-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+        </svg>
+        Retry
+      </button>
+    </div>
+
+    <div class="overview-stack">
+      <!-- Top Row — 3 Horizontal KPI Stat Cards -->
+      <div class="kpi-row">
         <div class="card kpi-card">
           <span class="kpi-label">Today's Shop Value</span>
           <div class="kpi-hero-row">
@@ -63,17 +180,91 @@
         </div>
       </div>
 
-      <!-- Right Column — Chart + Leaderboard -->
-      <div class="overview-right">
-        <div class="card chart-card">
+      <!-- Empty State Card (replaces chart and leaderboard when zero days recorded in period) -->
+      <div class="card empty-state-card" id="empty-state-card" hidden>
+        <div class="empty-state-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+            <line x1="10" y1="14" x2="14" y2="18"/>
+            <line x1="14" y1="14" x2="10" y2="18"/>
+          </svg>
+        </div>
+        <h3 class="empty-state-title">No shop data recorded for this period</h3>
+        <p class="empty-state-desc">There are no archived daily shop snapshots matching your selected timeframe.</p>
+        <button class="empty-state-reset-btn" id="empty-reset-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+          </svg>
+          Reset to All Time
+        </button>
+      </div>
+
+      <!-- Main Chart Card -->
+      <div class="card chart-card" id="chart-card">
+        <div class="chart-header">
           <h2 class="card-title">V-Bucks Over Time</h2>
-          <div class="chart-wrap">
-            <canvas id="vbucks-chart"></canvas>
+          <div class="chart-controls">
+            <!-- Bucket Aggregation (Day / Week / Month) -->
+            <div class="chart-toggle-group" id="agg-toggle-group" role="radiogroup" aria-label="Time Aggregation">
+              <button class="chart-toggle-btn active" data-agg="day" role="radio" aria-checked="true">Day</button>
+              <button class="chart-toggle-btn" data-agg="week" role="radio" aria-checked="false">Week</button>
+              <button class="chart-toggle-btn" data-agg="month" role="radio" aria-checked="false">Month</button>
+            </div>
+
+            <!-- Adaptive Chart Type (Auto / Bars / Line) -->
+            <div class="chart-toggle-group" id="type-toggle-group" role="radiogroup" aria-label="Chart Type">
+              <button class="chart-toggle-btn active" data-type="auto" role="radio" aria-checked="true">Auto</button>
+              <button class="chart-toggle-btn" data-type="bar" role="radio" aria-checked="false">Bars</button>
+              <button class="chart-toggle-btn" data-type="line" role="radio" aria-checked="false">Line</button>
+            </div>
           </div>
         </div>
+        <div class="chart-wrap">
+          <div class="chart-scroll-container" id="chart-scroll-container">
+            <div class="chart-canvas-wrap" id="chart-canvas-wrap">
+              <canvas id="vbucks-chart"></canvas>
+            </div>
+          </div>
+          <!-- Shimmering Loading Skeleton for Chart -->
+          <div class="skeleton-chart" id="chart-skeleton">
+            <div class="skeleton-chart-bar" style="height: 38%"></div>
+            <div class="skeleton-chart-bar" style="height: 58%"></div>
+            <div class="skeleton-chart-bar" style="height: 42%"></div>
+            <div class="skeleton-chart-bar" style="height: 72%"></div>
+            <div class="skeleton-chart-bar" style="height: 64%"></div>
+            <div class="skeleton-chart-bar" style="height: 86%"></div>
+            <div class="skeleton-chart-bar" style="height: 52%"></div>
+            <div class="skeleton-chart-bar" style="height: 90%"></div>
+            <div class="skeleton-chart-bar" style="height: 66%"></div>
+            <div class="skeleton-chart-bar" style="height: 82%"></div>
+            <div class="skeleton-chart-bar" style="height: 48%"></div>
+            <div class="skeleton-chart-bar" style="height: 76%"></div>
+          </div>
+          <div class="chart-empty-state" id="chart-empty-state" hidden>No data available for the selected range</div>
+        </div>
+      </div>
 
-        <div class="card leaderboard-card">
-          <h2 class="card-title">Highest-Value Days</h2>
+      <!-- Leaderboard Card -->
+      <div class="card leaderboard-card" id="leaderboard-card">
+        <div class="leaderboard-header">
+          <h2 class="card-title" id="leaderboard-title">Highest-Value Days</h2>
+          <div class="leaderboard-controls">
+            <!-- Sort toggle: Highest | Lowest -->
+            <div class="chart-toggle-group" id="lb-sort-group" role="radiogroup" aria-label="Leaderboard Sort">
+              <button class="chart-toggle-btn active" data-sort="desc" role="radio" aria-checked="true">Highest</button>
+              <button class="chart-toggle-btn" data-sort="asc" role="radio" aria-checked="false">Lowest</button>
+            </div>
+            <!-- Expand / Collapse toggle -->
+            <button class="lb-expand-btn" id="lb-expand-btn" hidden aria-expanded="false">
+              <span id="lb-expand-text">View all</span>
+            </button>
+          </div>
+        </div>
+        <div class="leaderboard-scroll" id="leaderboard-scroll">
           <ol class="leaderboard" id="leaderboard"></ol>
         </div>
       </div>

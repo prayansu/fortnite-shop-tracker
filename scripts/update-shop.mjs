@@ -33,6 +33,29 @@ function getDisplayName(entry) {
   return "Unknown";
 }
 
+function checkCollab(entry) {
+  const series = entry.series?.value || entry.series?.id || entry.brItems?.[0]?.series?.value || entry.brItems?.[0]?.series?.id;
+  if (series) return true;
+
+  const sec = (entry.section?.id || entry.section?.name || "").toLowerCase();
+  if (sec.includes("collab") || sec.includes("marvel") || sec.includes("star wars") || sec.includes("icon") || sec.includes("gaming") || sec.includes("anime")) {
+    return true;
+  }
+
+  const name = getDisplayName(entry).toLowerCase();
+  const collabKeywords = [
+    "marvel", "star wars", "disney", "anime", "naruto", "dragon ball", "goku", "vegeta",
+    "one piece", "luffy", "zoro", "cowboy bebop", "overwatch", "halo", "god of war", "kratos",
+    "master chief", "witcher", "geralt", "my hero academia", "jujutsu kaisen", "attack on titan",
+    "batman", "superman", "spider-man", "spiderman", "iron man", "avengers", "deadpool", "wolverine",
+    "nike", "jordan", "lego", "ferrari", "mclaren", "lamborghini", "bmw", "cybertruck", "travis scott",
+    "eminem", "ariana grande", "the weeknd", "lady gaga", "billie eilish", "metallica", "snoop dogg",
+    "madison beer", "lil uzi vert", "regular show", "futurama", "family guy", "rick and morty",
+    "mrbeast", "ninja", "bugha", "icon series", "gaming legends", "dc series"
+  ];
+  return collabKeywords.some((kw) => name.includes(kw));
+}
+
 // ---------------------------------------------------------------------------
 // Migration: convert legacy data into summary.json entries
 // ---------------------------------------------------------------------------
@@ -112,9 +135,10 @@ async function main() {
   const topItem     = items.length
     ? items.reduce((best, i) => (i.price > best.price ? i : best), items[0])
     : null;
+  const hasCollab   = unique.some(checkCollab);
 
   console.log(
-    `🛒 ${itemCount} items | 💰 ${totalVbucks.toLocaleString()} V-Bucks | 🏆 ${topItem?.name ?? "—"} (${topItem?.price ?? 0})`
+    `🛒 ${itemCount} items | 💰 ${totalVbucks.toLocaleString("en-US")} V-Bucks | 🏆 ${topItem?.name ?? "—"} (${topItem?.price ? topItem.price.toLocaleString("en-US") : 0})${hasCollab ? ' [Collab]' : ''}`
   );
 
   const record = {
@@ -122,6 +146,7 @@ async function main() {
     totalVbucks,
     itemCount,
     topItem: topItem ? { name: topItem.name, price: topItem.price } : null,
+    hasCollab: Boolean(hasCollab),
   };
 
   // 6. Load existing summary
