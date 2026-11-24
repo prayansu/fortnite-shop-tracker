@@ -144,6 +144,7 @@ function renderChart(data) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      grouped: false,
       interaction: { mode: "index", intersect: false },
       plugins: {
         legend: { display: false },

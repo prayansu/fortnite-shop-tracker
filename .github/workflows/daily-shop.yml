@@ -2,11 +2,14 @@ name: Daily Shop Update
 
 on:
   schedule:
-    - cron: '15 7 * * *'
-      timezone: 'Asia/Kolkata'
+    - cron: '45 2 * * *'
   workflow_dispatch:
-  
-  
+  repository_dispatch:
+    types: [update-shop]
+
+concurrency:
+  group: daily-shop-update
+  cancel-in-progress: false
 
 jobs:
   update-shop:
@@ -19,15 +22,30 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Check if today is already recorded
+        id: preflight
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          if jq -e --arg d "$TODAY" 'map(.date) | index($d) != null' data/summary.json > /dev/null 2>&1; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "⏭  $TODAY already exists in summary.json — skipping."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "🆕  $TODAY not found — will fetch new data."
+          fi
+
       - name: Set up Node.js 20
+        if: steps.preflight.outputs.skip != 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Fetch latest shop data
+        if: steps.preflight.outputs.skip != 'true'
         run: node scripts/update-shop.mjs
 
       - name: Commit and push if changed
+        if: steps.preflight.outputs.skip != 'true'
         run: |
           git diff --quiet data/summary.json && exit 0
           git config user.name  "github-actions[bot]"
