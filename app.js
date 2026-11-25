@@ -198,7 +198,10 @@ function renderLoadingSkeletons() {
 
   // KPI Skeletons
   if ($todayVb) $todayVb.innerHTML = '<span class="skeleton skeleton-val"></span>';
-  if ($pill) $pill.textContent = "";
+  if ($pill) {
+    $pill.hidden = true;
+    $pill.textContent = "";
+  }
   if ($yestLine) $yestLine.innerHTML = '<span class="skeleton skeleton-sub"></span>';
 
   if ($newVb) $newVb.innerHTML = '<span class="skeleton skeleton-val"></span>';
@@ -239,6 +242,10 @@ function renderErrorState(err) {
   }
 
   if ($todayVb) $todayVb.innerHTML = "—";
+  if ($pill) {
+    $pill.hidden = true;
+    $pill.textContent = "";
+  }
   if ($yestLine) $yestLine.textContent = "Data unavailable";
   if ($newVb) $newVb.innerHTML = "—";
   if ($newDetail) $newDetail.textContent = "Data unavailable";
@@ -950,14 +957,20 @@ function renderKPIs(data) {
 
   if (today && yesterday) {
     const diff  = today.totalVbucks - yesterday.totalVbucks;
-    const pct   = yesterday.totalVbucks ? ((diff / yesterday.totalVbucks) * 100).toFixed(1) : 0;
+    const pct   = yesterday.totalVbucks ? ((diff / yesterday.totalVbucks) * 100).toFixed(1) : "0.0";
     const sign  = diff > 0 ? "+" : "";
     const cls   = diff > 0 ? "up" : diff < 0 ? "down" : "flat";
-    const arrow = diff > 0 ? "↑" : diff < 0 ? "↓" : "→";
+    const arrowSvg = diff > 0
+      ? '<svg class="kpi-pill-arrow" width="8" height="8" viewBox="0 0 8 8" fill="currentColor" aria-hidden="true"><path d="M4 1L7.5 6.5H0.5L4 1Z"/></svg>'
+      : diff < 0
+        ? '<svg class="kpi-pill-arrow" width="8" height="8" viewBox="0 0 8 8" fill="currentColor" aria-hidden="true"><path d="M4 7L0.5 1.5H7.5L4 7Z"/></svg>'
+        : '<svg class="kpi-pill-arrow" width="8" height="8" viewBox="0 0 8 8" fill="currentColor" aria-hidden="true"><rect x="1" y="3.25" width="6" height="1.5" rx="0.75"/></svg>';
+    $pill.hidden      = false;
     $pill.className   = `kpi-pill kpi-pill--${cls}`;
-    $pill.textContent = `${arrow} ${sign}${pct}%`;
-    $yestLine.textContent = `Yesterday: ${fmt(yesterday.totalVbucks)} V-Bucks`;
+    $pill.innerHTML   = `${arrowSvg}<span>${sign}${pct}%</span>`;
+    $yestLine.textContent = `vs ${fmt(yesterday.totalVbucks)} yesterday`;
   } else {
+    $pill.hidden      = true;
     $pill.className   = "kpi-pill";
     $pill.textContent = "";
     $yestLine.textContent = today ? "No prior day in range" : "No data for selected period";

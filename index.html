@@ -13,7 +13,7 @@
       } catch (e) {}
     })();
   </script>
-  <link rel="stylesheet" href="./styles.css?v=3" />
+  <link rel="stylesheet" href="./styles.css?v=4" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -160,11 +160,11 @@
       <div class="kpi-row">
         <div class="card kpi-card">
           <span class="kpi-label">Today's Shop Value</span>
-          <div class="kpi-hero-row">
-            <span class="kpi-value" id="kpi-today-vbucks">&mdash;</span>
-            <span class="kpi-pill" id="kpi-change-pill"></span>
+          <span class="kpi-value" id="kpi-today-vbucks">&mdash;</span>
+          <div class="kpi-sub-row">
+            <span class="kpi-pill" id="kpi-change-pill" hidden></span>
+            <span class="kpi-sub" id="kpi-yesterday-line"></span>
           </div>
-          <span class="kpi-sub" id="kpi-yesterday-line"></span>
         </div>
 
         <div class="card kpi-card">
@@ -287,6 +287,6 @@
     </div>
   </main>
 
-  <script type="module" src="./app.js?v=3"></script>
+  <script type="module" src="./app.js?v=4"></script>
 </body>
 </html>
