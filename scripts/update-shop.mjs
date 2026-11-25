@@ -187,9 +187,12 @@ async function main() {
   if (idx !== -1) { summary[idx] = record; console.log("🔄 Updated", shopDate); }
   else            { summary.push(record);  console.log("➕ Added", shopDate); }
 
-  // 9. Sort chronologically & write (minified)
+  // 9. Sort chronologically & write (one entry per line)
   summary.sort((a, b) => a.date.localeCompare(b.date));
-  await writeFile(SUMMARY, JSON.stringify(summary), "utf-8");
+  const formatted = summary.length
+    ? "[\n" + summary.map((entry) => "  " + JSON.stringify(entry)).join(",\n") + "\n]\n"
+    : "[]\n";
+  await writeFile(SUMMARY, formatted, "utf-8");
   console.log(`✅ Saved ${summary.length} record(s) to data/summary.json`);
 
   // 10. Overwrite data/latest-ids.json with today's unique offerId list
