@@ -14,6 +14,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname  = dirname(__filename);
 const DATA_DIR   = join(__dirname, "..", "data");
 const SUMMARY    = join(DATA_DIR, "summary.json");
+const LATEST_IDS = join(DATA_DIR, "latest-ids.json");
 const SHOP_API   = "https://fortnite-api.com/v2/shop";
 
 // Paths to clean up from older versions
@@ -126,7 +127,7 @@ async function main() {
   for (const entry of unique) {
     const price = entry.finalPrice;
     if (price == null || price <= 0 || price >= 100000) continue;
-    items.push({ name: getDisplayName(entry), price });
+    items.push({ offerId: entry.offerId, name: getDisplayName(entry), price });
   }
 
   // 5. Metrics
@@ -137,8 +138,27 @@ async function main() {
     : null;
   const hasCollab   = unique.some(checkCollab);
 
+  // Day-over-day newly added items via data/latest-ids.json
+  let previousIds = null;
+  if (existsSync(LATEST_IDS)) {
+    try {
+      const parsed = JSON.parse(await readFile(LATEST_IDS, "utf-8"));
+      if (Array.isArray(parsed)) previousIds = new Set(parsed);
+    } catch {
+      previousIds = null;
+    }
+  }
+
+  let newVbucks = null;
+  let newItemCount = null;
+  if (previousIds !== null) {
+    const newItems = items.filter((item) => !previousIds.has(item.offerId));
+    newVbucks = newItems.reduce((s, i) => s + i.price, 0);
+    newItemCount = newItems.length;
+  }
+
   console.log(
-    `🛒 ${itemCount} items | 💰 ${totalVbucks.toLocaleString("en-US")} V-Bucks | 🏆 ${topItem?.name ?? "—"} (${topItem?.price ? topItem.price.toLocaleString("en-US") : 0})${hasCollab ? ' [Collab]' : ''}`
+    `🛒 ${itemCount} items | 💰 ${totalVbucks.toLocaleString("en-US")} V-Bucks | 🏆 ${topItem?.name ?? "—"} (${topItem?.price ? topItem.price.toLocaleString("en-US") : 0})${hasCollab ? ' [Collab]' : ''}${newVbucks !== null ? ` | 🆕 ${newItemCount} new (${newVbucks.toLocaleString("en-US")} V-Bucks)` : ''}`
   );
 
   const record = {
@@ -147,6 +167,8 @@ async function main() {
     itemCount,
     topItem: topItem ? { name: topItem.name, price: topItem.price } : null,
     hasCollab: Boolean(hasCollab),
+    newVbucks,
+    newItemCount,
   };
 
   // 6. Load existing summary
@@ -169,6 +191,10 @@ async function main() {
   summary.sort((a, b) => a.date.localeCompare(b.date));
   await writeFile(SUMMARY, JSON.stringify(summary), "utf-8");
   console.log(`✅ Saved ${summary.length} record(s) to data/summary.json`);
+
+  // 10. Overwrite data/latest-ids.json with today's unique offerId list
+  await writeFile(LATEST_IDS, JSON.stringify(unique.map((e) => e.offerId)), "utf-8");
+  console.log(`✅ Saved ${unique.length} offerId(s) to data/latest-ids.json`);
 }
 
 main().catch((err) => { console.error("❌ Fatal:", err); process.exit(1); });

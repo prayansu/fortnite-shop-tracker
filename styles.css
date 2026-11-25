@@ -878,7 +878,7 @@ body {
 }
 
 /* ================================================================
-   OVERVIEW LAYOUT (Horizontal 3-column KPI row + full-width stack)
+   OVERVIEW LAYOUT (Horizontal 4-column KPI row + full-width stack)
    ================================================================ */
 .overview-stack {
   display: flex;
@@ -888,7 +888,7 @@ body {
 
 .kpi-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
 }
 
@@ -1142,10 +1142,25 @@ body {
   border: 1px solid var(--tag-collab-border);
 }
 
+.lb-sub-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
 .lb-sub-meta {
   font-size: 11px;
   color: var(--ink-muted);
   line-height: 1.3;
+}
+
+.lb-new-vbucks {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .lb-item-name {
@@ -1205,6 +1220,9 @@ body {
   .container {
     padding: 24px 20px 44px;
   }
+  .kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
@@ -1260,14 +1278,10 @@ body {
     padding: 20px 16px 40px;
   }
 
-  /* Compact 2+1 grid for KPI stat cards */
+  /* 2x2 grid for KPI stat cards on tablet */
   .kpi-row {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
-  }
-
-  .kpi-card:nth-child(3) {
-    grid-column: 1 / -1;
   }
 
   .chart-header,
@@ -1294,10 +1308,6 @@ body {
   .kpi-row {
     grid-template-columns: 1fr;
     gap: 10px;
-  }
-
-  .kpi-card:nth-child(3) {
-    grid-column: auto;
   }
 
   .kpi-card {

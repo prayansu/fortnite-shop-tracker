@@ -101,6 +101,8 @@ const $leaderboardCard= document.getElementById("leaderboard-card");
 const $todayVb        = document.getElementById("kpi-today-vbucks");
 const $pill           = document.getElementById("kpi-change-pill");
 const $yestLine       = document.getElementById("kpi-yesterday-line");
+const $newVb          = document.getElementById("kpi-new-vbucks");
+const $newDetail      = document.getElementById("kpi-new-detail");
 const $peakVb         = document.getElementById("kpi-peak-vbucks");
 const $peakDetail     = document.getElementById("kpi-peak-detail");
 const $avgVb          = document.getElementById("kpi-avg-vbucks");
@@ -220,6 +222,9 @@ function renderLoadingSkeletons() {
   if ($pill) $pill.textContent = "";
   if ($yestLine) $yestLine.innerHTML = '<span class="skeleton skeleton-sub"></span>';
 
+  if ($newVb) $newVb.innerHTML = '<span class="skeleton skeleton-val"></span>';
+  if ($newDetail) $newDetail.innerHTML = '<span class="skeleton skeleton-sub"></span>';
+
   if ($peakVb) $peakVb.innerHTML = '<span class="skeleton skeleton-val"></span>';
   if ($peakDetail) $peakDetail.innerHTML = '<span class="skeleton skeleton-sub"></span>';
 
@@ -254,6 +259,8 @@ function renderErrorState(err) {
 
   if ($todayVb) $todayVb.innerHTML = "—";
   if ($yestLine) $yestLine.textContent = "Data unavailable";
+  if ($newVb) $newVb.innerHTML = "—";
+  if ($newDetail) $newDetail.textContent = "Data unavailable";
   if ($peakVb) $peakVb.innerHTML = "—";
   if ($peakDetail) $peakDetail.textContent = "Data unavailable";
   if ($avgVb) $avgVb.innerHTML = "—";
@@ -975,6 +982,16 @@ function renderKPIs(data) {
     $yestLine.textContent = today ? "No prior day in range" : "No data for selected period";
   }
 
+  if (today && today.newVbucks != null) {
+    $newVb.innerHTML = `${fmt(today.newVbucks)} <span class="kpi-unit">V-Bucks</span>`;
+    const newCount = today.newItemCount ?? 0;
+    const freshPct = today.totalVbucks > 0 ? ((today.newVbucks / today.totalVbucks) * 100).toFixed(1) : "0.0";
+    $newDetail.textContent = `${fmt(newCount)} new item${newCount === 1 ? "" : "s"} · ${freshPct}% of shop`;
+  } else {
+    $newVb.textContent = "—";
+    $newDetail.textContent = today ? "Tracking starts next rotation" : "No data for selected period";
+  }
+
   const $peakVb     = document.getElementById("kpi-peak-vbucks");
   const $peakDetail = document.getElementById("kpi-peak-detail");
 
@@ -1269,6 +1286,10 @@ function renderLeaderboard(data) {
       ? `Top: <span class="lb-item-name">${d.topItem.name} (${fmt(d.topItem.price)} VB)</span>`
       : "";
 
+    const newVbucksHtml = d.newVbucks != null
+      ? `<span class="lb-new-vbucks">+${fmt(d.newVbucks)} new</span>`
+      : "";
+
     return `<li class="lb-row">
       <div class="lb-top">
         <div class="lb-left">
@@ -1280,7 +1301,10 @@ function renderLeaderboard(data) {
           <span class="lb-vbucks">${fmt(d.totalVbucks)} V-Bucks</span>
         </div>
       </div>
-      ${topItemDetail ? `<div class="lb-sub-meta">${topItemDetail}</div>` : ''}
+      ${(topItemDetail || newVbucksHtml) ? `<div class="lb-sub-row">
+        <div class="lb-sub-meta">${topItemDetail}</div>
+        ${newVbucksHtml}
+      </div>` : ''}
       <div class="lb-bar-bg"><div class="lb-bar-fill" style="width:${pct}%"></div></div>
     </li>`;
   }).join("");
