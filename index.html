@@ -13,7 +13,7 @@
       } catch (e) {}
     })();
   </script>
-  <link rel="stylesheet" href="./styles.css?v=2" />
+  <link rel="stylesheet" href="./styles.css?v=3" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -229,6 +229,16 @@
             </div>
           </div>
         </div>
+        <div class="chart-legend" id="chart-legend" hidden>
+          <span class="chart-legend-item">
+            <span class="legend-dot" aria-hidden="true"></span>
+            <span class="legend-label">Shop value</span>
+          </span>
+          <span class="chart-legend-item">
+            <span class="legend-dash" aria-hidden="true"></span>
+            <span class="legend-label legend-label-muted" id="chart-legend-avg">Avg &mdash;</span>
+          </span>
+        </div>
         <div class="chart-wrap">
           <div class="chart-scroll-container" id="chart-scroll-container">
             <div class="chart-canvas-wrap" id="chart-canvas-wrap">
@@ -277,6 +287,6 @@
     </div>
   </main>
 
-  <script type="module" src="./app.js?v=2"></script>
+  <script type="module" src="./app.js?v=3"></script>
 </body>
 </html>

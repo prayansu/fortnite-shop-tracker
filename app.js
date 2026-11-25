@@ -77,6 +77,8 @@ const $popCancel      = document.getElementById("pop-cancel");
 const $popApply       = document.getElementById("pop-apply");
 
 const $chartEmptyState= document.getElementById("chart-empty-state");
+const $chartLegend    = document.getElementById("chart-legend");
+const $chartLegendAvg = document.getElementById("chart-legend-avg");
 const $aggToggleBtns  = document.querySelectorAll("#agg-toggle-group .chart-toggle-btn");
 const $typeToggleBtns = document.querySelectorAll("#type-toggle-group .chart-toggle-btn");
 
@@ -132,7 +134,7 @@ const averageLinePlugin = {
 
     ctx.save();
 
-    // 1. Dashed line across chart
+    // Dashed average reference line across chart
     const isDark = document.documentElement.getAttribute("data-theme") === "dark";
     ctx.beginPath();
     ctx.setLineDash([4, 4]);
@@ -141,29 +143,6 @@ const averageLinePlugin = {
     ctx.moveTo(chartArea.left, yPos);
     ctx.lineTo(chartArea.right, yPos);
     ctx.stroke();
-
-    // 2. Pill label on the right edge
-    const labelText = `Avg: ${fmt(avgValue)} V-Bucks`;
-    ctx.font = "600 10px Inter, -apple-system, sans-serif";
-    const textWidth = ctx.measureText(labelText).width;
-    const padX = 6;
-    const badgeW = textWidth + padX * 2;
-    const badgeH = 16;
-    const badgeX = chartArea.right - badgeW - 6;
-    const badgeY = yPos - badgeH - 3;
-
-    ctx.fillStyle = isDark ? "#262930" : "#111111";
-    ctx.beginPath();
-    if (ctx.roundRect) {
-      ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 4);
-    } else {
-      ctx.rect(badgeX, badgeY, badgeW, badgeH);
-    }
-    ctx.fill();
-
-    ctx.fillStyle = isDark ? "#f4f4f5" : "#ffffff";
-    ctx.textBaseline = "middle";
-    ctx.fillText(labelText, badgeX + padX, badgeY + badgeH / 2);
 
     ctx.restore();
   }
@@ -232,6 +211,7 @@ function renderLoadingSkeletons() {
   if ($avgDetail) $avgDetail.innerHTML = '<span class="skeleton skeleton-sub"></span>';
 
   // Chart Skeleton
+  if ($chartLegend) $chartLegend.hidden = true;
   if ($chartSkeleton) $chartSkeleton.hidden = false;
   const canvas = document.getElementById("vbucks-chart");
   if (canvas) canvas.style.display = "none";
@@ -251,6 +231,7 @@ function renderLoadingSkeletons() {
 }
 
 function renderErrorState(err) {
+  if ($chartLegend) $chartLegend.hidden = true;
   if ($chartSkeleton) $chartSkeleton.hidden = true;
   if ($errorBanner) {
     $errorBanner.hidden = false;
@@ -1024,6 +1005,7 @@ function renderChart(buckets, effectiveAgg) {
   const canvas = document.getElementById("vbucks-chart");
 
   if (!buckets.length) {
+    if ($chartLegend) $chartLegend.hidden = true;
     if (vbucksChart) {
       vbucksChart.destroy();
       vbucksChart = null;
@@ -1060,6 +1042,9 @@ function renderChart(buckets, effectiveAgg) {
 
   const allTimePeak = history.length ? Math.max(...history.map((d) => d.totalVbucks)) : 0;
   const meanValue = Math.round(buckets.reduce((s, b) => s + b.vbucks, 0) / buckets.length);
+
+  if ($chartLegend) $chartLegend.hidden = false;
+  if ($chartLegendAvg) $chartLegendAvg.textContent = `Avg ${fmt(meanValue)}`;
 
   const labels = buckets.map((b) => b.label);
   const values = buckets.map((b) => b.vbucks);
