@@ -1,3 +1,7 @@
 [
+  {"date":"2026-11-21","totalVbucks":296000,"itemCount":367,"topItem":{"name":"One Piece Bundle","price":4000}},
+  {"date":"2026-11-22","totalVbucks":327600,"itemCount":400,"topItem":{"name":"Overwatch Bundle","price":4200}},
+  {"date":"2026-11-23","totalVbucks":387000,"itemCount":467,"topItem":{"name":"Overwatch Bundle","price":4200}},
+  {"date":"2026-11-24","totalVbucks":406700,"itemCount":490,"topItem":{"name":"Overwatch Bundle","price":4200}},
   {"date":"2026-11-25","totalVbucks":413300,"itemCount":496,"topItem":{"name":"Overwatch Bundle","price":4200},"hasCollab":true,"newVbucks":null,"newItemCount":null}
 ]
